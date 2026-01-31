@@ -34,3 +34,44 @@ resource "docker_container" "app_container" {
     name = docker_network.devops_network.name
   }
 }
+
+resource "docker_image" "prometheus" {
+  name = "prom/prometheus:latest"
+}
+
+resource "docker_container" "prometheus" {
+  name  = "prometheus"
+  image = docker_image.prometheus.image_id
+
+  volumes {
+    host_path      = "${path.cwd}/prometheus/prometheus.yml"
+    container_path = "/etc/prometheus/prometheus.yml"
+  }
+
+  ports {
+    internal = 9090
+    external = 9090
+  }
+
+  networks_advanced {
+    name = docker_network.devops_network.name
+  }
+}
+
+resource "docker_image" "grafana" {
+  name = "grafana/grafana:latest"
+}
+
+resource "docker_container" "grafana" {
+  name  = "grafana"
+  image = docker_image.grafana.image_id
+
+  ports {
+    internal = 3000
+    external = 3000
+  }
+
+  networks_advanced {
+    name = docker_network.devops_network.name
+  }
+}
